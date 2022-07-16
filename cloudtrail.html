@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ACCESS MONITOR</title>
+    <meta name="author" content="Derek Eder">
+    <meta content="Display any CSV file as a searchable, filterable, pretty HTML table">
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+<!--    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">-->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.12.1/datatables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/main.css"/>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <main class="row">
+            <div class="col">
+                Toggle column:
+                <div class="shadow-sm p-3 mb-5 bg-white rounded" id="toggle-vis"></div>
+                <div id="table-container"></div>
+            </div>
+        </main>
+        <footer class="row">
+            <div class="col">
+                <p class="text-right"><a href="https://github.com/derekeder/csv-to-html-table">CSV to HTML Table</a> by
+                    <a href="http://derekeder.com">Derek Eder</a></p>
+            </div>
+        </footer>
+    </div>
+<!--    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>-->
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
+    <script src="js/jquery.csv.min.js"></script>
+    <script src="js/athena-struct-parser.js"></script>
+    <script src="js/json5_2.2.1.min.js"></script>
+<!--    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>-->
+<!--    <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>-->
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.12.1/datatables.min.js"></script>
+<!--    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>-->
+
+    <script src="js/csv_to_html_table.js"></script>
+
+    <script>
+        // function format_link(link) {
+        //     if (link)
+        //         return "<a href='" + link + "' target='_blank'>" + link + "</a>";
+        //     else return "";
+        // }
+
+        CsvToHtmlTable.init({
+            csv_path: "test.csv",
+            element: "table-container",
+            allow_download: true,
+            reorder_columns_simple: ['eventtime', 'eventname', 'eventsource'],
+            csv_options: {
+                separator: ",",
+                delimiter: '"'
+            },
+            datatables_options: {
+                paging: false
+            },
+            custom_formatting: [
+                [4, library.json.prettyPrint]
+            ]
+        });
+    </script>
+</body>
+
+</html>
