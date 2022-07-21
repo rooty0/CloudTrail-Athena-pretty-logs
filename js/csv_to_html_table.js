@@ -1,47 +1,53 @@
-if (!library)
-    var library = {};
-library.json = {
-    replacer: function(match, pIndent, pKey, pVal, pEnd) {
-        let key = '<span class=json-key>';
-        let val = '<span class=json-value>';
-        let str = '<span class=json-string>';
-        let r = pIndent || '';
-        if (pKey)
-            r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
-        if (pVal)
-            r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
-        return r + (pEnd || '');
-    },
-    prettyPrint: function(obj) {
-        let jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
-        let struct_data;
-        if (typeof obj === 'string') {
-            // let json_obj = JSON.parse(obj);
-            struct_data = parseStruct(obj)
-            console.log(struct_data);
-
-        }
-        return "<pre>" + JSON.stringify(struct_data, null, 3)
-            .replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
-            .replace(/</g, '&lt;').replace(/>/g, '&gt;')
-            .replace(jsonLine, library.json.replacer) + "</pre>";
-    }
-};
-
 function arrayMove(arr, fromIndex, toIndex) {
     const element = arr[fromIndex];
     arr.splice(fromIndex, 1);
     arr.splice(toIndex, 0, element);
 }
 
-$(document).ready(function () {
-    var CsvToHtmlTable = CsvToHtmlTable || {};
-});
+$(document).ready(() => {
+    let data_files_form = $('.basicAutoCompleteShowDropdown')
+    data_files_form.autoComplete({
+        events: {
+            searchPost: function (resultFromServer) {
+                let data = $.parseHTML(resultFromServer);
+                let items = $(data).find('li a').map(function() {
+                    return this.text;
+                }).get();
+                // console.log(items)
+                return items;
+            }
+        },
+        resolverSettings: {
+            url: 'realdata/'
+        },
+        minLength: 0,
+        noResultsText: '',
+        select: function( event, ui ) {},
+    });
 
-CsvToHtmlTable = {
+    data_files_form.keyup(e => {
+        if (e.which === 13) { // Enter
+            let data_file = data_files_form.val();
+            Cookies.set('data_file', data_file, { expires: 7 });
+            window.location.reload();
+        }
+    });
+    data_files_form.on('autocomplete.select', function () {
+        let data_file = data_files_form.val();
+        Cookies.set('data_file', data_file, { expires: 7 });
+        window.location.reload();
+    });
+
+    $('.basicAutoCompleteShowBtn').on('click', function () {
+        $('.basicAutoCompleteShowDropdown').autoComplete('show');
+    });
+
+})
+
+const CsvToHtmlTable = {
     init: function (options) {
         options = options || {};
-        let csv_path = options.csv_path || "";
+        let csv_path_manual = options.csv_path || "";
         let el = options.element || "table-container";
         let allow_download = options.allow_download || false;
         let csv_options = options.csv_options || {};
@@ -55,10 +61,13 @@ CsvToHtmlTable = {
         });
 
         let table = $("<table class='table table-striped table-condensed' id='" + el + "-table'></table>");
-        let $containerElement = $("#" + el);
-        $containerElement.empty().append(table);
+        let containerElement = $("#" + el);
+        containerElement.empty().append(table);
 
         let reorder_columns = options.reorder_columns_simple || [];
+        let hide_columns = options.hide_columns || [];
+
+        const csv_path = Object.keys(csv_path_manual).length === 0 ? "realdata/" + Cookies.get('data_file') : csv_path_manual;
 
         $.when($.get(csv_path)).then(
             function (data) {
@@ -115,12 +124,21 @@ CsvToHtmlTable = {
                     column.visible(!column.visible());
 
                     // grayout
-                    $( this ).toggleClass( "btn-primary" ).toggleClass( "btn-secondary" );
+                    $(this).toggleClass("btn-primary").toggleClass("btn-secondary");
                 });
 
+                $('#close-toggle-menu').on('click', function (e) {
+                    e.preventDefault();
+                    $('#toggle-vis').toggle('fast');
+                });
+
+                // hidden by default feature
+                for (let i = 0; i < hide_columns.length; i++) {
+                    $("a.toggle-vis:contains("+hide_columns[i]+")").trigger("click");
+                }
 
                 if (allow_download) {
-                    $containerElement.append("<p><a class='btn btn-info' href='" + csv_path + "'><i class='glyphicon glyphicon-download'></i> Download as CSV</a></p>");
+                    containerElement.append("<p><a class='btn btn-info' href='" + csv_path + "'><i class='glyphicon glyphicon-download'></i> Download as CSV</a></p>");
                 }
             });
     }
