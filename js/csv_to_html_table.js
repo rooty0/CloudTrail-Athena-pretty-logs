@@ -75,6 +75,7 @@ const CsvToHtmlTable = {
                 let tableHead = $("<thead></thead>");
                 let csvHeaderRow = csvData[0];
                 let tableHeadRow = $("<tr></tr>");
+                let tableFilterHeadRow = $("<tr class='d-none'></tr>");
 
                 // reorder by header
                 for(let i = 0; i < reorder_columns.length; i++) {
@@ -89,7 +90,13 @@ const CsvToHtmlTable = {
                 for (let headerIdx = 0; headerIdx < csvHeaderRow.length; headerIdx++) {
                     tableHeadRow.append($("<th></th>").text(csvHeaderRow[headerIdx]));
                     $("div#toggle-vis").append("<a class=\"toggle-vis btn btn-primary\" style='margin: 5px;' data-column=\""+headerIdx+"\">"+csvHeaderRow[headerIdx]+"</a>");
+
+                    // filter
+                    tableFilterHeadRow.append($("<th class='filters'>filter...</th>")
+                    );
                 }
+
+                tableHead.append(tableFilterHeadRow);
                 tableHead.append(tableHeadRow);
 
                 table.append(tableHead);
@@ -111,6 +118,40 @@ const CsvToHtmlTable = {
                 }
                 table.append(tableBody);
 
+                datatables_options['initComplete'] = function () {
+                    let api = this.api();
+                    let th_filters = $('th.filters');
+                    api.columns().eq(0).each(function (colIdx) {
+                        let cell = th_filters.eq(
+                            $(api.column(colIdx).header()).index()
+                        );
+                        let title = $(cell).text();
+                        let cursorPosition;
+                        $(cell).html('<input type="text" placeholder="' + title + '" />');
+                        $('input', th_filters.eq($(api.column(colIdx).header()).index()))
+                            .off('keyup change')
+                            .on('change', function (e) {
+                                $(this).attr('title', $(this).val());
+                                let regexr = '({search})';
+                                cursorPosition = this.selectionStart;
+                                api.column(colIdx).search(
+                                    this.value !== ''
+                                        ? regexr.replace('{search}', '(((' + this.value + ')))')
+                                        : '',
+                                    this.value !== '',
+                                    this.value === ''
+                                ).draw();
+                            })
+                            .on('keyup', function (e) {
+                                e.stopPropagation();
+
+                                $(this).trigger('change');
+                                $(this)
+                                    .focus()[0]
+                                    .setSelectionRange(cursorPosition, cursorPosition);
+                            });
+                    });
+                };
                 let ref_table = table.DataTable(datatables_options);
                 $('div.dataTables_filter input').addClass('form-control');
 
@@ -130,6 +171,10 @@ const CsvToHtmlTable = {
                 $('#close-toggle-menu').on('click', function (e) {
                     e.preventDefault();
                     $('#toggle-vis').toggle('fast');
+                });
+                $('#show-advanced-search').on('click', function (e) {
+                    e.preventDefault();
+                    $('tr.d-none').removeClass('d-none');
                 });
 
                 // hidden by default feature
