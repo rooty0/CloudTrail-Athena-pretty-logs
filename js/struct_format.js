@@ -21,5 +21,10 @@ struct_format.json = {
             .replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
             .replace(/</g, '&lt;').replace(/>/g, '&gt;')
             .replace(jsonLine, struct_format.json.replacer) + "</pre>";
-    }
+    },
+    prettyDate: function (obj) {
+        let main_text = moment(obj).format('MMM D YY, HH:mm')
+        let text_title = moment(obj).format('MM/DD/YYYY, HH:mm:ss') + " >>> " + moment(obj).calendar();
+        return "<span title=\"" + text_title + "\" class=\"badge badge-primary badge-pill badge-light\">" +  main_text + "</span>"
+    },
 };
