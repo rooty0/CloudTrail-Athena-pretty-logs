@@ -7,3 +7,10 @@
 .json-string {
     color: olive;
 }
+pre.json-pre {
+    height: auto;
+    overflow: auto;
+    max-height: 340px;
+    overflow-y: scroll;
+    background-color: transparent;
+}

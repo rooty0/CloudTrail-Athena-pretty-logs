@@ -185,6 +185,15 @@ const CsvToHtmlTable = {
                 if (allow_download) {
                     containerElement.append("<p><a class='btn btn-info' href='" + csv_path + "'><i class='glyphicon glyphicon-download'></i> Download as CSV</a></p>");
                 }
+
+                let max_pre_scroll = Math.max.apply(
+                    null, $("#table-container-table tbody tr td").map(function () { return $(this).height() }).get()
+                );
+
+                $("pre.json-pre").each(function (){
+                    $(this).css("max-height", max_pre_scroll);
+                    // console.log($(this));
+                });
             });
     }
 };
