@@ -65,7 +65,9 @@ const CsvToHtmlTable = {
         containerElement.empty().append(table);
 
         let reorder_columns = options.reorder_columns_simple || [];
+
         let hide_columns = options.hide_columns || [];
+        if (Cookies.get('hide_columns') === undefined) Cookies.set('hide_columns', JSON.stringify(hide_columns), { expires: 365 });
 
         const csv_path = Object.keys(csv_path_manual).length === 0 ? "realdata/" + Cookies.get('data_file') : csv_path_manual;
 
@@ -166,18 +168,52 @@ const CsvToHtmlTable = {
 
                     // grayout
                     $(this).toggleClass("btn-primary").toggleClass("btn-secondary");
+
+                    // grayout and set cookies // broken, fix later
+                    // if ($(this).hasClass("btn-primary")) {
+                    //     // TO HIDE
+                    //     $(this).removeClass("btn-primary");
+                    //     $(this).addClass("btn-secondary");
+                    //
+                    //     // Saving result to hide
+                    //     hide_columns = JSON.parse(Cookies.get('hide_columns'))
+                    //     let hide_column_index = hide_columns.indexOf($(this).text());
+                    //     if (hide_column_index !== -1) {
+                    //         hide_columns.splice(hide_column_index, 1);
+                    //         // alert(JSON.stringify(hide_columns));
+                    //         // Cookies.set('hide_columns', JSON.stringify(hide_columns), { expires: 365 });
+                    //     }
+                    // } else {
+                    //     // TO SHOW
+                    //     $(this).removeClass("btn-secondary");
+                    //     $(this).addClass("btn-primary");
+                    // }
                 });
 
+                let head_menu_visibility = Cookies.get('head_menu_visibility');
+                if (head_menu_visibility === 'hide') {
+                    $('#toggle-vis').hide('fast');
+                }
                 $('#close-toggle-menu').on('click', function (e) {
                     e.preventDefault();
-                    $('#toggle-vis').toggle('fast');
+                    head_menu_visibility = Cookies.get('head_menu_visibility');
+                    if (head_menu_visibility === 'hide') {
+                        Cookies.set('head_menu_visibility', 'show', { expires: 365 });
+                        $('#toggle-vis').show('fast');
+                    }
+                    else {
+                        Cookies.set('head_menu_visibility', 'hide', { expires: 365 });
+                        $('#toggle-vis').hide('fast');
+                    }
+
                 });
                 $('#show-advanced-search').on('click', function (e) {
                     e.preventDefault();
                     $('tr.d-none').removeClass('d-none');
                 });
 
-                // hidden by default feature
+                // to hide column feature
+                hide_columns = JSON.parse(Cookies.get('hide_columns'));
                 for (let i = 0; i < hide_columns.length; i++) {
                     $("a.toggle-vis:contains("+hide_columns[i]+")").trigger("click");
                 }

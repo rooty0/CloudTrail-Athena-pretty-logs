@@ -70,8 +70,16 @@
 
     <script>
         let f_blable = value => '<span class="badge badge-secondary">'+value+'</span>';
-        let f_source = value => value === 'AWS Internal' ? '<i class="bi-x-circle-fill" role="img" aria-label="AWS Internal"></i>' : value;
         let f_rw = value => value === 'true' ? '<span class="badge badge-success">'+value+'</span>' : '<span class="badge badge-danger">'+value+'</span>' ;
+
+        // let f_source = value => value === 'AWS Internal' ? '<i class="bi-x-circle-fill" role="img" aria-label="AWS Internal"></i>' : value;
+        let f_source = value => {
+            if (value === 'AWS Internal') return '<p class="text-danger bi-robot"><br />AWS Internal</p>'
+            if (value.includes('Terraform/')) return `<p class="text-secondary bi-robot"><br />${value}</p>`
+            if (value.endsWith('.amazonaws.com')) return `<p class="text-secondary bi-robot"><br />${value}</p>`
+            if (value.trim().length === 0) return '<i class="text-danger bi-x-circle-fill" role="img" aria-label="NONE"></i>'
+            return `<i class="bi bi-question-circle-fill"></i><p class="text-light bg-dark">${value}</p>`
+        }
 
         CsvToHtmlTable.init({
             // csv_path: "test.csv", // do not uncomment - detects from cookies
@@ -90,7 +98,7 @@
                 [0, struct_format.json.prettyDate],
                 [1, f_blable],
                 [4, struct_format.json.prettyPrint],
-                [6, f_source],
+                // [6, f_source], # todo: use client IP to show country flag using https://ipapi.co/
                 [7, f_source],
                 [10, struct_format.json.prettyJSON],
                 [11, struct_format.json.prettyJSON],
